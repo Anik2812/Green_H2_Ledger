@@ -1,13 +1,14 @@
 "use client"
 
-import DashboardShell from "@/components/dashboard/shell"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Upload, FilePlus2, ArrowRight, TrendingUp } from "lucide-react"
 
 export default function ProducerDashboardPage() {
   return (
-    <DashboardShell title="Producer Dashboard">
+    // The <DashboardShell> wrapper has been removed.
+    // We use a React Fragment <> as the root element now.
+    <>
       {/* KPIs */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <article className="glass rounded-xl border border-white/10 p-4 transition-smooth hover:bg-white/5 card-hover">
@@ -143,6 +144,6 @@ export default function ProducerDashboardPage() {
           ))}
         </div>
       </section>
-    </DashboardShell>
+    </>
   )
 }

@@ -13,13 +13,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useStore, UserData } from "@/lib/store"
 
-const sampleBatches: Batch[] = [
-  { id: "b1", volume: 1200, price: 0.42, seller: "0x6F12a93Bf74C94eA942bF1be12c9D7b2E84A21c3", source: "Solar" },
-  { id: "b2", volume: 800, price: 0.38, seller: "0xA91F54B1d3f1F344aa9210D3a927b8De0a33C512", source: "Wind" },
-  { id: "b3", volume: 3000, price: 0.55, seller: "0x90e2C14D3a0779d8F0B6a3E2a5aB2D5F31eF4912", source: "Other" },
-  { id: "b4", volume: 1500, price: 0.49, seller: "0x4B8C33e1E1B2C93f4A7234A8c2dFf2e9d1cF12a0", source: "Solar" },
-]
+const MOCK_BUYER_WALLET = '0xBuyerWalletAddress';
 
 function StatCard({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
@@ -36,16 +32,21 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon?:
 }
 
 export default function BuyerDashboardPage() {
+  const { batches, purchaseBatch, getUserData } = useStore();
   const [query, setQuery] = React.useState("")
   const [sortKey, setSortKey] = React.useState<"price" | "volume">("price")
   const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc")
   const [selected, setSelected] = React.useState<Batch | null>(null)
   const [open, setOpen] = React.useState(false)
 
-  const filtered = sampleBatches
-    .filter((b) => b.seller.toLowerCase().includes(query.toLowerCase()))
+  const buyerData = getUserData(MOCK_BUYER_WALLET);
+
+  const filtered = batches
+    .filter((b) => b.status === 'Certified' && b.producer.toLowerCase().includes(query.toLowerCase()))
     .sort((a, b) => {
-      const cmp = sortKey === "price" ? a.price - b.price : a.volume - b.volume
+      const aPrice = a.price || 0;
+      const bPrice = b.price || 0;
+      const cmp = sortKey === "price" ? aPrice - bPrice : a.volume - b.volume
       return sortDir === "asc" ? cmp : -cmp
     })
 
@@ -54,25 +55,9 @@ export default function BuyerDashboardPage() {
     setOpen(true)
   }
 
-  // fake count-up values
-  const [balance, setBalance] = React.useState(0)
-  const [certs, setCerts] = React.useState(0)
-  React.useEffect(() => {
-    let raf: number
-    const start = performance.now()
-    const animate = (t: number) => {
-      const p = Math.min((t - start) / 1000, 1)
-      setBalance(Math.floor(5000 * p))
-      setCerts(Math.floor(12 * p))
-      if (p < 1) raf = requestAnimationFrame(animate)
-    }
-    raf = requestAnimationFrame(animate)
-    return () => cancelAnimationFrame(raf)
-  }, [])
-
   const exportCSV = React.useCallback(() => {
     const header = ["id", "volume", "price", "seller", "source"]
-    const rows = filtered.map((r) => [r.id, r.volume, r.price, r.seller, r.source])
+    const rows = filtered.map((r) => [r.id, r.volume, r.price, r.producer, r.energySource])
     const csv = [header, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n")
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
     const url = URL.createObjectURL(blob)
@@ -93,10 +78,10 @@ export default function BuyerDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <StatCard
           label="My GHC Balance"
-          value={`${balance.toLocaleString()} GHC`}
+          value={`${buyerData.ghcBalance.toLocaleString()} GHC`}
           icon={<Wallet className="h-4 w-4" />}
         />
-        <StatCard label="Certificates Owned" value={`${certs}`} icon={<SortAsc className="h-4 w-4" />} />
+        <StatCard label="Total Spent" value={`$${buyerData.totalSpent.toLocaleString()}`} icon={<SortAsc className="h-4 w-4" />} />
       </div>
 
       <section className="mt-8">

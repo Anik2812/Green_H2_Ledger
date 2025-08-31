@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { DashboardShell } from "@/components/dashboard/shell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
@@ -80,114 +79,113 @@ export default function SettingsPage() {
   }
 
   return (
-    <DashboardShell title="Settings">
-      <div className="grid gap-6 md:grid-cols-12">
-        {/* Left nav */}
-        <aside className="md:col-span-3">
-          <div className="rounded-xl border border-white/10 bg-white/5 p-2 backdrop-blur-xl">
-            <button
-              onClick={() => setTab("profile")}
-              className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${
-                tab === "profile"
-                  ? "bg-gradient-to-r from-[#00F5A0]/15 to-[#00D4FF]/15 text-white"
-                  : "text-white/80 hover:bg-white/10"
-              }`}
-            >
-              Profile
-            </button>
-            <button
-              onClick={() => setTab("notifications")}
-              className={`mt-1 w-full rounded-lg px-3 py-2 text-left text-sm transition ${
-                tab === "notifications"
-                  ? "bg-gradient-to-r from-[#00F5A0]/15 to-[#00D4FF]/15 text-white"
-                  : "text-white/80 hover:bg-white/10"
-              }`}
-            >
-              Notifications
-            </button>
-          </div>
-        </aside>
+    // The <DashboardShell> wrapper has been removed.
+    <div className="grid gap-6 md:grid-cols-12">
+      {/* Left nav */}
+      <aside className="md:col-span-3">
+        <div className="rounded-xl border border-white/10 bg-white/5 p-2 backdrop-blur-xl">
+          <button
+            onClick={() => setTab("profile")}
+            className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${
+              tab === "profile"
+                ? "bg-gradient-to-r from-[#00F5A0]/15 to-[#00D4FF]/15 text-white"
+                : "text-white/80 hover:bg-white/10"
+            }`}
+          >
+            Profile
+          </button>
+          <button
+            onClick={() => setTab("notifications")}
+            className={`mt-1 w-full rounded-lg px-3 py-2 text-left text-sm transition ${
+              tab === "notifications"
+                ? "bg-gradient-to-r from-[#00F5A0]/15 to-[#00D4FF]/15 text-white"
+                : "text-white/80 hover:bg-white/10"
+            }`}
+          >
+            Notifications
+          </button>
+        </div>
+      </aside>
 
-        {/* Right content */}
-        <main className="md:col-span-9">
-          {tab === "profile" ? (
-            <div className="grid gap-6">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
-                <h3 className="text-lg font-semibold text-white">Profile</h3>
-                <div className="mt-4 grid gap-4">
-                  <div className="grid gap-2">
-                    <label className="text-sm text-white/80">Display Name</label>
-                    <Input
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="Your name"
-                      className="bg-white/5 text-white placeholder:text-white/40"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <label className="text-sm text-white/80">Email</label>
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@domain"
-                      className="bg-white/5 text-white placeholder:text-white/40"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <label className="text-sm text-white/80">Wallet Address</label>
-                    <div className="flex items-center justify-between rounded-lg border border-white/15 bg-white/5 p-3 font-mono text-xs text-white/90">
-                      <span className="truncate">{wallet}</span>
-                      <Button
-                        type="button"
-                        onClick={onCopy}
-                        className="ml-3 inline-flex items-center gap-1 rounded-md bg-gradient-to-r from-[#00F5A0] to-[#00D4FF] px-2.5 py-1.5 text-xs font-semibold text-black hover:opacity-90 active:opacity-80"
-                      >
-                        {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                        {copied ? "Copied" : "Copy"}
-                      </Button>
-                    </div>
-                  </div>
-                  <div>
+      {/* Right content */}
+      <main className="md:col-span-9">
+        {tab === "profile" ? (
+          <div className="grid gap-6">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+              <h3 className="text-lg font-semibold text-white">Profile</h3>
+              <div className="mt-4 grid gap-4">
+                <div className="grid gap-2">
+                  <label className="text-sm text-white/80">Display Name</label>
+                  <Input
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Your name"
+                    className="bg-white/5 text-white placeholder:text-white/40"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm text-white/80">Email</label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@domain"
+                    className="bg-white/5 text-white placeholder:text-white/40"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm text-white/80">Wallet Address</label>
+                  <div className="flex items-center justify-between rounded-lg border border-white/15 bg-white/5 p-3 font-mono text-xs text-white/90">
+                    <span className="truncate">{wallet}</span>
                     <Button
-                      onClick={onSave}
-                      className="mt-2 bg-gradient-to-r from-[#00F5A0] to-[#00D4FF] font-semibold text-black hover:opacity-90 active:opacity-80"
+                      type="button"
+                      onClick={onCopy}
+                      className="ml-3 inline-flex items-center gap-1 rounded-md bg-gradient-to-r from-[#00F5A0] to-[#00D4FF] px-2.5 py-1.5 text-xs font-semibold text-black hover:opacity-90 active:opacity-80"
                     >
-                      Save Changes
+                      {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copied ? "Copied" : "Copy"}
                     </Button>
                   </div>
                 </div>
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-6">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
-                <h3 className="text-lg font-semibold text-white">Notifications</h3>
-                <div className="mt-4 grid gap-3">
-                  <ToggleSwitch
-                    checked={notifyEmail}
-                    onChange={setNotifyEmail}
-                    label="Email alerts"
-                    description="Receive confirmations and updates via email."
-                  />
-                  <ToggleSwitch
-                    checked={notifyInApp}
-                    onChange={setNotifyInApp}
-                    label="In-app notifications"
-                    description="Show real-time activity and status changes."
-                  />
-                  <ToggleSwitch
-                    checked={marketTips}
-                    onChange={setMarketTips}
-                    label="Marketplace tips"
-                    description="Get helpful tips to discover the best offers."
-                  />
+                <div>
+                  <Button
+                    onClick={onSave}
+                    className="mt-2 bg-gradient-to-r from-[#00F5A0] to-[#00D4FF] font-semibold text-black hover:opacity-90 active:opacity-80"
+                  >
+                    Save Changes
+                  </Button>
                 </div>
               </div>
             </div>
-          )}
-        </main>
-      </div>
-    </DashboardShell>
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+              <h3 className="text-lg font-semibold text-white">Notifications</h3>
+              <div className="mt-4 grid gap-3">
+                <ToggleSwitch
+                  checked={notifyEmail}
+                  onChange={setNotifyEmail}
+                  label="Email alerts"
+                  description="Receive confirmations and updates via email."
+                />
+                <ToggleSwitch
+                  checked={notifyInApp}
+                  onChange={setNotifyInApp}
+                  label="In-app notifications"
+                  description="Show real-time activity and status changes."
+                />
+                <ToggleSwitch
+                  checked={marketTips}
+                  onChange={setMarketTips}
+                  label="Marketplace tips"
+                  description="Get helpful tips to discover the best offers."
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
   )
 }

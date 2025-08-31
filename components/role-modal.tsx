@@ -58,18 +58,20 @@ export default function RoleModal({
   const dialogRef = useRef<HTMLDivElement | null>(null)
   const firstFocusable = useRef<HTMLButtonElement | null>(null)
 
+  // Effect to handle Escape key press for closing the modal
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose()
     }
     if (open) {
       document.addEventListener("keydown", onKey)
-      // focus first action
+      // Focus the first interactive element when the modal opens
       setTimeout(() => firstFocusable.current?.focus(), 0)
     }
     return () => document.removeEventListener("keydown", onKey)
   }, [open, onClose])
 
+  // Effect to handle clicks outside the modal to close it
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (!dialogRef.current) return
@@ -84,11 +86,17 @@ export default function RoleModal({
   if (!open) return null
 
   const handleSelect = (role: string) => {
+    // THE FIX: Save the selected role to localStorage for persistence
+    localStorage.setItem("userRole", role)
+    
     onClose()
+    
+    // Navigate to the appropriate dashboard based on the selected role
     if (role === "producer") router.push("/dashboard/producer")
-    else if (role === "buyer") router.push("/dashboard/marketplace")
+    else if (role === "buyer") router.push("/dashboard/buyer")
     else if (role === "certifier") router.push("/dashboard/certifier")
     else if (role === "auditor") router.push("/dashboard/auditor")
+    else router.push("/dashboard") // Fallback to a general dashboard page if role is unknown
   }
 
   return (
@@ -167,3 +175,4 @@ export default function RoleModal({
     </div>
   )
 }
+

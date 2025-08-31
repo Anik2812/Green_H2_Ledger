@@ -55,7 +55,7 @@ export function PurchaseModal({
       const hash = "0xabc123...def456"
       setTxHash(hash)
       setStatus("success")
-      toast({ title: "Purchase Executed", description: `Bought ${amount} GHC from ${batch.seller.slice(0, 6)}...` })
+      toast({ title: "Purchase Executed", description: `Bought ${amount} GHC from ${batch.producer.slice(0, 6)}...` })
     } catch (e) {
       setStatus("error")
       toast({ title: "Transaction failed", description: "Please try again.", variant: "destructive" })
@@ -119,11 +119,11 @@ export function PurchaseModal({
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[#F8FAFC]/70">Price per GHC</span>
-                <span className="font-medium">{batch.price.toFixed(2)} MATIC</span>
+                <span className="font-medium">{batch.price?.toFixed(2)} MATIC</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[#F8FAFC]/70">Seller</span>
-                <span className="font-mono">{batch.seller.slice(0, 10)}...</span>
+                <span className="font-mono">{batch.producer.slice(0, 10)}...</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[#F8FAFC]/70">Certifier</span>

@@ -4,21 +4,17 @@ import type React from "react"
 
 import { cn } from "@/lib/utils"
 import { Sun, Wind, Leaf } from "lucide-react"
+import { Batch } from "@/lib/store"
 
-type EnergySource = "Solar" | "Wind" | "Other"
 
-export type Batch = {
-  id: string
-  volume: number // total GHC available
-  price: number // price per GHC (testnet MATIC)
-  seller: string // wallet
-  source: EnergySource
-}
+type EnergySource = "Solar" | "Wind" | "Other" | "Hydroelectric";
+
 
 const sourceIcon: Record<EnergySource, React.ReactNode> = {
   Solar: <Sun className="h-4 w-4 text-[#F8FAFC]" aria-hidden="true" />,
   Wind: <Wind className="h-4 w-4 text-[#F8FAFC]" aria-hidden="true" />,
   Other: <Leaf className="h-4 w-4 text-[#F8FAFC]" aria-hidden="true" />,
+  Hydroelectric: <Leaf className="h-4 w-4 text-[#F8FAFC]" aria-hidden="true" />,
 }
 
 export function BatchCard({
@@ -30,7 +26,7 @@ export function BatchCard({
   onSelect: (b: Batch) => void
   index: number
 }) {
-  const shortAddr = batch.seller.slice(0, 6) + "..." + batch.seller.slice(-4)
+  const shortAddr = batch.producer.slice(0, 6) + "..." + batch.producer.slice(-4)
   return (
     <motion.button
       type="button"
@@ -59,9 +55,9 @@ export function BatchCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#00F5A0] to-[#00D4FF] shadow-inner shadow-black/30">
-            {sourceIcon[batch.source]}
+            {sourceIcon[batch.energySource as EnergySource]}
           </span>
-          <span className="text-sm text-[#F8FAFC]/80">{batch.source}</span>
+          <span className="text-sm text-[#F8FAFC]/80">{batch.energySource}</span>
         </div>
         <span className="text-xs text-[#F8FAFC]/60">Seller {shortAddr}</span>
       </div>
@@ -73,7 +69,7 @@ export function BatchCard({
         </div>
         <div className="text-right">
           <div className="text-xs text-[#F8FAFC]/60">Price</div>
-          <div className="text-xl font-semibold text-[#F8FAFC]">{batch.price.toFixed(2)} MATIC</div>
+          <div className="text-xl font-semibold text-[#F8FAFC]">{batch.price?.toFixed(2)} MATIC</div>
           <div className="text-xs text-[#F8FAFC]/60">per GHC</div>
         </div>
       </div>

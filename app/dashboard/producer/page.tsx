@@ -6,9 +6,25 @@ import { ProducerStatCards } from "@/components/producer/stat-cards"
 import { NewBatchModal } from "@/components/producer/new-batch-modal"
 import { ProducerBatchBoard } from "@/components/producer/batch-board"
 import { ProducerInventoryTable } from "@/components/producer/inventory-table"
+import { useStore } from "@/lib/store"
+
+// Mock wallet for the producer for this simulation
+const MOCK_PRODUCER_WALLET = '0xProducerWalletAddress';
 
 export default function ProducerDashboardPage() {
-  const [openNewBatch, setOpenNewBatch] = useState(false)
+  const [openNewBatch, setOpenNewBatch] = useState(false);
+  const { registerNewBatch } = useStore();
+
+  const handleRegisterBatch = async (payload: {
+    volume: number;
+    energySource: string;
+    proof: string;
+  }) => {
+    // In a real app, the wallet address would come from the connected wallet
+    registerNewBatch({ ...payload, producer: MOCK_PRODUCER_WALLET });
+    setOpenNewBatch(false); // Close modal on successful submission
+  };
+
 
   return (
     <>
@@ -51,9 +67,7 @@ export default function ProducerDashboardPage() {
       <NewBatchModal
         open={openNewBatch}
         onOpenChange={setOpenNewBatch}
-        onSubmit={async (payload) => {
-          console.log("[v0] Producer submit payload:", payload)
-        }}
+        onSubmit={handleRegisterBatch}
       />
     </>
   )

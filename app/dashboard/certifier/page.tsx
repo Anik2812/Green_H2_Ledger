@@ -24,52 +24,23 @@ import {
   Droplets,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useStore, Batch } from "@/lib/store"
 
-type Batch = {
-  id: string
-  wallet: string
-  volume: string
-  energySource: string
-  proofCid: string
-}
-
-const initialQueue: Batch[] = [
-  {
-    id: "BATCH-00123",
-    wallet: "0xA1b2...c9D0",
-    volume: "50,000 kg",
-    energySource: "Wind",
-    proofCid: "bafybeigdk7wqj-example-1",
-  },
-  {
-    id: "BATCH-00124",
-    wallet: "0x99F1...7B33",
-    volume: "22,300 kg",
-    energySource: "Solar",
-    proofCid: "bafybeigdl2hdp-example-2",
-  },
-  {
-    id: "BATCH-00125",
-    wallet: "0x10CD...88A1",
-    volume: "12,750 kg",
-    energySource: "Hydro",
-    proofCid: "bafybeigdabcd3-example-3",
-  },
-]
 
 export default function CertifierDashboardPage() {
   const { toast } = useToast()
-  const [queue, setQueue] = useState<Batch[]>(initialQueue)
+  const { batches, updateBatchStatus } = useStore();
   const [approving, setApproving] = useState<Batch | null>(null)
   const [cidInput, setCidInput] = useState("")
   const [isIssuing, setIsIssuing] = useState(false)
   const [rejecting, setRejecting] = useState<Batch | null>(null)
 
+  const queue = useMemo(() => batches.filter(b => b.status === 'Pending'), [batches]);
   const hasItems = useMemo(() => queue.length > 0, [queue])
 
   function openProof(cid: string) {
-    const url = `https://ipfs.io/ipfs/${cid}`
-    window.open(url, "_blank", "noopener,noreferrer")
+    // In a real scenario, this would link to an actual IPFS gateway
+    toast({ title: "Opening Mock Proof", description: `File: ${cid}` });
   }
 
   function handleReject(b: Batch) {
@@ -78,19 +49,17 @@ export default function CertifierDashboardPage() {
 
   async function handleConfirmIssue() {
     if (!approving) return
-    if (!cidInput.trim()) {
-      toast({ title: "Missing certificate CID", description: "Please enter the Certificate IPFS CID." })
-      return
-    }
     setIsIssuing(true)
     try {
       // Simulate on-chain tx latency
       await new Promise((res) => setTimeout(res, 1400))
-      // Remove approved batch from queue
-      setQueue((prev) => prev.filter((x) => x.id !== approving.id))
+      // Assign a random price between $2.50 and $5.50
+      const randomPrice = Math.random() * (5.5 - 2.5) + 2.5;
+      updateBatchStatus(approving.id, 'Certified', parseFloat(randomPrice.toFixed(2)));
+
       toast({
-        title: "Certificate issued",
-        description: `Certificate for ${approving.id} issued on-chain.`,
+        title: "Batch Certified",
+        description: `${approving.id} has been certified and is now on the marketplace.`,
       })
       setApproving(null)
       setCidInput("")
@@ -106,15 +75,20 @@ export default function CertifierDashboardPage() {
 
   function handleRejectRequest() {
     if (!rejecting) return
-    setQueue((prev) => prev.filter((x) => x.id !== rejecting.id))
+    updateBatchStatus(rejecting.id, 'Rejected');
     setRejecting(null)
     toast({ title: "Batch rejected", description: `${rejecting.id} has been rejected.` })
   }
 
   function EnergyIcon({ source }: { source: string }) {
     const common = "h-4 w-4 drop-shadow-[0_0_8px_rgba(0,212,255,0.6)]"
-    if (source.toLowerCase() === "wind") return <Wind className={common + " text-[#00D4FF]"} aria-hidden="true" />
-    if (source.toLowerCase() === "solar") return <Sun className={common + " text-[#F5B14C]"} aria-hidden="true" />
+    // FIX: Add a check for undefined or null source to prevent crashes
+    if (!source) {
+      return <Droplets className={common + " text-gray-500"} aria-hidden="true" />
+    }
+    const lowerSource = source.toLowerCase();
+    if (lowerSource === "wind") return <Wind className={common + " text-[#00D4FF]"} aria-hidden="true" />
+    if (lowerSource === "solar") return <Sun className={common + " text-[#F5B14C]"} aria-hidden="true" />
     return <Droplets className={common + " text-[#00F5A0]"} aria-hidden="true" />
   }
 
@@ -156,20 +130,20 @@ export default function CertifierDashboardPage() {
                     <div className="flex flex-col gap-4">
                       <div className="grid grid-cols-2 gap-3">
                         <InfoItem label="Batch ID" value={b.id} />
-                        <InfoItem label="Producer Wallet" value={b.wallet} copyable />
-                        <InfoItem label="Volume" value={b.volume} />
+                        <InfoItem label="Producer Wallet" value={b.producer} copyable />
+                        <InfoItem label="Volume" value={`${b.volume.toLocaleString()} Kg`} />
                         <div className="min-w-0">
                           <div className="text-[11px] uppercase tracking-wide text-white/50">Energy Source</div>
                           <div className="mt-0.5 flex items-center gap-2">
                             <EnergyIcon source={b.energySource} />
-                            <span className="text-white">{b.energySource}</span>
+                            <span className="text-white">{b.energySource || 'N/A'}</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 md:gap-3">
                         <Button
-                          onClick={() => openProof(b.proofCid)}
+                          onClick={() => openProof(b.proof)}
                           variant="glass-blue"
                           className="flex items-center gap-2 ring-1 ring-[#00D4FF]/30 hover:shadow-[0_0_24px_rgba(0,212,255,0.35)]"
                           title="View Proof on IPFS"
@@ -224,25 +198,9 @@ export default function CertifierDashboardPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <InfoItem label="Batch ID" value={approving.id} />
-                <InfoItem label="Producer Wallet" value={approving.wallet} />
-                <InfoItem label="Volume" value={approving.volume} />
+                <InfoItem label="Producer Wallet" value={approving.producer} />
+                <InfoItem label="Volume" value={`${approving.volume.toLocaleString()} kg`} />
                 <InfoItem label="Energy Source" value={approving.energySource} />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="certCid" className="text-sm text-white/80">
-                  Certificate IPFS CID
-                </label>
-                <input
-                  id="certCid"
-                  placeholder="bafybeigd...your-certificate-cid"
-                  className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#00F5A0]/60"
-                  value={cidInput}
-                  onChange={(e) => setCidInput(e.target.value)}
-                />
-                <p className="text-xs text-white/60">
-                  Provide the hash of the official certificate you generated and uploaded to IPFS.
-                </p>
               </div>
             </div>
           )}
